@@ -33,7 +33,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - run: pip install fastapi httpx python-multipart
+      - run: pip install fastapi httpx python-multipart pillow numpy
       - name: OCR 服务逻辑测试（stub 引擎）
         run: python infra/scripts/ocr_service_test.py
       - name: PocketBase 冒烟测试

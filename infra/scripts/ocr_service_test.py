@@ -2,6 +2,7 @@
 
 用法：python infra/scripts/ocr_service_test.py
 """
+import io
 import os
 import sys
 import types
@@ -17,7 +18,12 @@ sys.modules['paddleocr'] = _paddle_stub
 import app as ocr_app
 from fastapi.testclient import TestClient
 
-PNG = b'\x89PNG\r\n\x1a\n' + b'\x00' * 32
+# 用 PIL 生成真实可解码的小 PNG（app.py 会用 cv2/PIL 解码上传字节）
+from PIL import Image
+
+_buf = io.BytesIO()
+Image.new('RGB', (8, 8), (0, 0, 0)).save(_buf, format='PNG')
+PNG = _buf.getvalue()
 client = TestClient(ocr_app.app)
 passed = 0
 

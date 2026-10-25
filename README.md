@@ -32,7 +32,8 @@ dramatrace/
 
 ```powershell
 cd infra\pocketbase
-$env:PB_ADMIN_EMAIL='admin@dramatrace.local'; $env:PB_ADMIN_PASSWORD='changeme123'
+# 首次使用先创建管理员（v0.40 原生二进制不读 PB_ADMIN_* 环境变量，必须用 superuser upsert）
+.\pocketbase.exe superuser upsert admin@dramatrace.local changeme123 --dir=pb_data
 .\pocketbase.exe serve --http=127.0.0.1:8090 --dir=pb_data
 ```
 
@@ -56,30 +57,51 @@ CI：`.github/workflows/ci.yml` 在每次 push/PR 时自动跑前端构建、OCR
 
 ```bash
 cd infra
-export PB_ADMIN_EMAIL=你的邮箱 PB_ADMIN_PASSWORD=你的密码
+cp .env.example .env             # 然后编辑 .env：PB_ADMIN_EMAIL / PB_ADMIN_PASSWORD
 docker compose up -d            # 网页 http://<服务器IP>:8080
 docker compose -f docker-compose.ocr.yml up -d   # 可选：OCR 服务（约 5GB 镜像）
 ```
 
+`.env` 已被 git 忽略，不会泄露进仓库。Docker 镜像首次启动会用 `.env` 里的账号自动创建管理员。
+
 网页 Nginx 已将 `/api` 反代到 PocketBase，手机/电视浏览器直接访问 8080 端口即可。
 首次使用在「设置」页把服务器地址填成 `http://<服务器IP>:8080`。
 
-## Android 打包（需 Android Studio / JDK 17 + Android SDK）
+## Android 打包（需 JDK 21 + Android SDK）
 
 ```bash
 cd apps/web
 pnpm build                      # 重新构建前端产物
 pnpm cap:sync                   # 同步到 android/
 pnpm android:open               # 用 Android Studio 打开并构建 APK
+
+# 或命令行直接构建（无需 Android Studio）：
+cd android
+gradlew assembleDebug           # 产物：app/build/outputs/apk/debug/app-debug.apk
 ```
+
+环境要求：JDK 21（如 Temurin 21）、Android SDK（platform-tools、platforms;android-36、build-tools;36.0.0）。SDK 路径写在 `apps/web/android/local.properties`（`sdk.dir=...`，已被 git 忽略）。首次构建需下载大量 Gradle 依赖；国内网络已在 `settings.gradle` / `build.gradle` 预置阿里云镜像仓库（官方源作为回退）。
 
 在手机端登录前，先在「设置」页填写服务器的局域网/公网完整地址。
 
 ## 自动记录（截图 OCR）
 
+方式一：Docker 部署（推荐，隔离干净）：
+
 1. 部署 OCR 服务（见上文 docker-compose.ocr.yml），在「设置」页填 OCR 地址（默认 `http://<服务器IP>:8091`）。
 2. 追剧时截取含播放器进度条的画面 → 「追剧」页上传截图 → OCR 解析出剧名/集数/时间 → 生成待审核建议。
 3. 在「待审核」页确认 / 合并 / 忽略；与手动记录冲突时以手动为准，直接覆盖会被服务端拒绝。
+
+方式二：Windows 原生运行（无 Docker，PaddleOCR 2.x，依赖约 1GB）：
+
+```powershell
+cd infra\ocr
+python -m venv .venv
+.venv\Scripts\pip install -i https://pypi.tuna.tsinghua.edu.cn/simple paddlepaddle==2.6.2 paddleocr==2.7.0.3 fastapi uvicorn python-multipart pillow
+.venv\Scripts\uvicorn app:app --host 0.0.0.0 --port 8000
+```
+
+首次识别会自动下载中文模型（PaddleOCR 2.x 走国内源），在「设置」页把 OCR 地址填 `http://<本机IP>:8000`。
 
 插件框架：`pending_records` 集合即标准建议入口，未来可接入 Jellyfin/Plex/Emby webhook、通知栏解析、Trakt/CSV 导入。
 

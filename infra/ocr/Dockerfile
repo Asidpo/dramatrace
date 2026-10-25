@@ -6,7 +6,7 @@ WORKDIR /app
 
 # 国内环境建议保留清华源加速
 RUN pip install --no-cache-dir paddlepaddle==3.1.1 -i https://pypi.tuna.tsinghua.edu.cn/simple \
- && pip install --no-cache-dir paddleocr fastapi uvicorn python-multipart -i https://pypi.tuna.tsinghua.edu.cn/simple
+ && pip install --no-cache-dir paddleocr fastapi uvicorn python-multipart pillow numpy opencv-python-headless -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 COPY app.py /app/app.py
 

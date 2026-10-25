@@ -6,7 +6,7 @@
 
 import io
 
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI, File, HTTPException, UploadFile
 from paddleocr import PaddleOCR
 from pydantic import BaseModel
 
@@ -21,6 +21,26 @@ def get_engine() -> PaddleOCR:
         # show_log=False 避免刷日志；use_angle_cls=False 对视频截图够用且更快
         _engine = PaddleOCR(use_angle_cls=False, lang="ch", show_log=False)
     return _engine
+
+
+def to_ndarray(data: bytes):
+    """把上传的图片字节解码为 BGR ndarray（2.x 与 3.x 引擎都接受）。"""
+    try:
+        import cv2
+        import numpy as np
+
+        arr = np.frombuffer(data, np.uint8)
+        img = cv2.imdecode(arr, cv2.IMREAD_COLOR)
+        if img is None:
+            raise ValueError("无法解码图片")
+        return img
+    except ImportError:
+        # 无 OpenCV 时退回 PIL（RGB → BGR）
+        import numpy as np
+        from PIL import Image
+
+        img = np.asarray(Image.open(io.BytesIO(data)).convert("RGB"))
+        return img[:, :, ::-1]
 
 
 def parse_result(result) -> list[dict]:
@@ -59,7 +79,10 @@ def health():
 @app.post("/ocr", response_model=OcrResponse)
 async def ocr(file: UploadFile = File(...)):
     data = await file.read()
-    img = io.BytesIO(data)
+    try:
+        img = to_ndarray(data)
+    except Exception:
+        raise HTTPException(status_code=400, detail="无法解码图片，请上传 PNG/JPG 截图")
     engine = get_engine()
     try:
         result = engine.ocr(img, cls=False)

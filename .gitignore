@@ -19,6 +19,7 @@ infra/pocketbase/pocketbase*
 .env
 .env.local
 *.local
+.venv/
 
 # 系统
 .DS_Store
