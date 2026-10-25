@@ -13,8 +13,8 @@ services:
       - PB_ADMIN_EMAIL=${PB_ADMIN_EMAIL:-admin@dramatrace.local}
       - PB_ADMIN_PASSWORD=${PB_ADMIN_PASSWORD:-changeme123}
     entrypoint: ["/pb/pocketbase"]
-    # --cors=* : 自托管局域网场景，Android 端跨源直连服务端（认证走 token）
-    command: ["serve", "--http=0.0.0.0:8090", "--dir=/pb/pb_data", "--cors=*"]
+    # v0.40 已移除 --cors 标志，默认 --origins [*] 即允许所有来源
+    command: ["serve", "--http=0.0.0.0:8090", "--dir=/pb/pb_data"]
     volumes:
       - ./pocketbase/pb_data:/pb/pb_data
       - ./pocketbase/pb_migrations:/pb/pb_migrations

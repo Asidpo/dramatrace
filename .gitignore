@@ -37,3 +37,7 @@ infra/pocketbase/checksums.txt
 # 日志
 *.log
 logs/
+
+# OCR 原生环境（模型缓存与临时文件）
+infra/ocr/home/
+infra/ocr/tmp/
