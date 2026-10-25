@@ -92,16 +92,14 @@ gradlew assembleDebug           # 产物：app/build/outputs/apk/debug/app-debug
 2. 追剧时截取含播放器进度条的画面 → 「追剧」页上传截图 → OCR 解析出剧名/集数/时间 → 生成待审核建议。
 3. 在「待审核」页确认 / 合并 / 忽略；与手动记录冲突时以手动为准，直接覆盖会被服务端拒绝。
 
-方式二：Windows 原生运行（无 Docker，PaddleOCR 2.x，依赖约 1GB）：
+方式二：Windows 原生运行（无 Docker，PaddleOCR 2.x，依赖约 1GB，需 Python 3.12）：
 
 ```powershell
-cd infra\ocr
-python -m venv .venv
-.venv\Scripts\pip install -i https://pypi.tuna.tsinghua.edu.cn/simple paddlepaddle==2.6.2 paddleocr==2.7.0.3 fastapi uvicorn python-multipart pillow
-.venv\Scripts\uvicorn app:app --host 0.0.0.0 --port 8000
+pwsh -File infra\ocr\setup_venv.ps1   # 一键安装（已验证的依赖组合：paddle 2.6 + numpy 1.x + protobuf 3.20）
+pwsh -File infra\ocr\start_ocr.ps1    # 启动服务 http://0.0.0.0:8000
 ```
 
-首次识别会自动下载中文模型（PaddleOCR 2.x 走国内源），在「设置」页把 OCR 地址填 `http://<本机IP>:8000`。
+首次识别会自动下载中文模型（约 15MB，缓存于 `infra\ocr\home\.paddleocr`），在「设置」页把 OCR 地址填 `http://<本机IP>:8000`。
 
 插件框架：`pending_records` 集合即标准建议入口，未来可接入 Jellyfin/Plex/Emby webhook、通知栏解析、Trakt/CSV 导入。
 
