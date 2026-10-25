@@ -50,4 +50,5 @@ jobs:
             curl -sf http://127.0.0.1:8090/api/health >/dev/null && break
             sleep 1
           done
-          pwsh -File infra/scripts/api_smoke.ps1
+          curl -sf http://127.0.0.1:8090/api/health >/dev/null || { echo "PocketBase not healthy"; exit 1; }
+          pwsh -File "$GITHUB_WORKSPACE/infra/scripts/api_smoke.ps1"
