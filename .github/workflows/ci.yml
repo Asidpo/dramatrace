@@ -44,8 +44,8 @@ jobs:
             "https://github.com/pocketbase/pocketbase/releases/download/v${PB_VERSION}/pocketbase_${PB_VERSION}_linux_amd64.zip"
           cd /tmp && unzip -o pb.zip
           cd "$GITHUB_WORKSPACE/infra/pocketbase"
-          PB_ADMIN_EMAIL=admin@dramatrace.local PB_ADMIN_PASSWORD=changeme123 \
-            /tmp/pocketbase serve --http=127.0.0.1:8090 --dir=pb_data >/tmp/pb.log 2>&1 &
+          /tmp/pocketbase superuser upsert admin@dramatrace.local changeme123 --dir=pb_data
+          /tmp/pocketbase serve --http=127.0.0.1:8090 --dir=pb_data >/tmp/pb.log 2>&1 &
           for i in $(seq 1 30); do
             curl -sf http://127.0.0.1:8090/api/health >/dev/null && break
             sleep 1
