@@ -1,0 +1,10 @@
+# 可选：自托管 PaddleOCR 截图识别服务（约 5GB 镜像，CPU 可跑）
+# 用法：cd infra && docker compose -f docker-compose.yml -f docker-compose.ocr.yml up -d
+services:
+  ocr:
+    build:
+      context: ./ocr
+    container_name: dramatrace-ocr
+    restart: unless-stopped
+    ports:
+      - "8091:8000"

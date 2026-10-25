@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">剧迹 DramaTrace</string>
+    <string name="title_activity_main">剧迹 DramaTrace</string>
+    <string name="package_name">com.dramatrace.app</string>
+    <string name="custom_url_scheme">com.dramatrace.app</string>
+</resources>

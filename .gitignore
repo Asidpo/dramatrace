@@ -1,0 +1,38 @@
+# Node
+node_modules/
+.pnpm-store/
+dist/
+build/
+dev-dist/
+
+# Capacitor（保留 Android 工程源码，忽略构建产物与同步进去的 web 资产）
+apps/web/android/build/
+apps/web/android/app/build/
+apps/web/android/capacitor-cordova-android-plugins/
+apps/web/android/app/src/main/assets/public/
+
+# PocketBase 数据
+infra/pocketbase/pb_data/
+infra/pocketbase/pocketbase*
+
+# 环境与密钥
+.env
+.env.local
+*.local
+
+# 系统
+.DS_Store
+Thumbs.db
+desktop.ini
+__pycache__/
+*.tsbuildinfo
+
+# PocketBase 二进制压缩包与自带文件
+infra/pocketbase/pb.zip
+infra/pocketbase/CHANGELOG.md
+infra/pocketbase/LICENSE.md
+infra/pocketbase/checksums.txt
+
+# 日志
+*.log
+logs/

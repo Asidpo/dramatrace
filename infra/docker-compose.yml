@@ -1,0 +1,37 @@
+# 剧迹 DramaTrace 一键部署：PocketBase 后端 + Web 前端
+# 用法：cd infra && docker compose up -d
+# 首次启动前请设置管理员账号（见 README）
+services:
+  pb:
+    image: ghcr.io/muchobien/pocketbase:latest
+    container_name: dramatrace-pb
+    restart: unless-stopped
+    ports:
+      - "8090:8090"
+    environment:
+      # 首次启动自动创建超级管理员（已存在时忽略）
+      - PB_ADMIN_EMAIL=${PB_ADMIN_EMAIL:-admin@dramatrace.local}
+      - PB_ADMIN_PASSWORD=${PB_ADMIN_PASSWORD:-changeme123}
+    entrypoint: ["/pb/pocketbase"]
+    # --cors=* : 自托管局域网场景，Android 端跨源直连服务端（认证走 token）
+    command: ["serve", "--http=0.0.0.0:8090", "--dir=/pb/pb_data", "--cors=*"]
+    volumes:
+      - ./pocketbase/pb_data:/pb/pb_data
+      - ./pocketbase/pb_migrations:/pb/pb_migrations
+      - ./pocketbase/pb_hooks:/pb/pb_hooks
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8090/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  web:
+    build:
+      context: ../apps/web
+    container_name: dramatrace-web
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    depends_on:
+      pb:
+        condition: service_healthy

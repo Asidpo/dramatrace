@@ -1,0 +1,65 @@
+[Normal] 跨设备追剧记录软件 —— 给 DeepSeek Harness 的需求说明
+[Normal] 一、项目定位
+[Normal] 我想用 DeepSeek Harness 开发一个开源的跨设备追剧记录软件，代码托管到 GitHub，使用 MIT 协议。
+[Normal] 核心目标是：把手机端、电视端、网页端等不同设备上的追剧进度统一记录下来，做到“每部剧看到第几季第几集、第几分钟、在哪个设备看的、什么时候看的、是否看完”都能清楚管理，并支持多端同步。
+[Normal] 二、核心功能
+[Normal] 每部剧需要能记录：
+[Normal] 剧名、季、集
+[Normal] 看到第几分钟
+[Normal] 观看设备：手机端 / 电视端 / 网页端 / 其他
+[Normal] 观看时间
+[Normal] 是否看完
+[Normal] 备注
+[Normal] 数据来源：手动记录 / 自动记录
+[Normal] 必须同时支持手动记录和自动记录。
+[Normal] 三、手动记录要求
+[Normal] 能搜索剧集，优先集成 TMDB 补全剧集信息。
+[Normal] 能选择季和集，更新观看进度。
+[Normal] 能标记某集看完、整部剧看完。
+[Normal] 能补录历史观看记录。
+[Normal] 能写备注。
+[Normal] 离线时也能先记录，联网后同步。
+[Normal] 手动修改过的进度要有明确标识，不能被自动记录静默覆盖。
+[Normal] 四、自动记录要求
+[Normal] 自动记录要设计成可扩展的插件机制，但不要承诺所有平台都能全自动。优先支持现实可落地的来源：
+[Normal] Jellyfin / Plex / Emby 的 webhook 或观看历史导入。
+[Normal] Trakt / CSV 导入。
+[Normal] 播放记录截图 OCR 识别。
+[Normal] 通知解析等辅助方式。
+[Normal] 对没有开放 API 的平台，提供手动兜底。
+[Normal] 自动记录必须满足：
+[Normal] 能去重，避免同一集重复记录。
+[Normal] 能处理冲突。
+[Normal] 自动记录只作为“建议记录”，需要我审核确认后才覆盖或合并。
+[Normal] 冲突时以手动记录为准。
+[Normal] 不能静默覆盖我手动改过的进度。
+[Normal] 五、技术方向
+[Normal] 前端优先：React + Capacitor，一套代码打包 Android / iOS / Web。
+[Normal] 后端优先：PocketBase 或类似轻量级、可 Docker 自托管的后端。
+[Normal] 电视端：先做 Web 版，能在电视浏览器使用；后续再考虑 Android TV 适配。
+[Normal] 剧集信息：集成 TMDB。
+[Normal] 同步方式：优先自托管同步，数据私有；本地文件同步或 WebDAV 作为备选。
+[Normal] 开源要求：提供 README、部署说明、Docker 方案和 MIT 许可证。
+[Normal] 六、开发流程要求
+[Normal] 请先不要直接写代码。
+[Normal] 第一步：请先问我最多 5 个关键问题。
+[Normal] 第二步：输出以下内容：
+[Normal] MVP 范围
+[Normal] 同步方案对比：自托管同步 vs WebDAV / 本地文件同步
+[Normal] 数据模型
+[Normal] 自动记录来源优先级
+[Normal] 开发步骤
+[Normal] 第三步：等我确认后，再搭建项目骨架并开始开发。
+[Normal] 七、MVP 验收标准
+[Normal] 第一版不追求全平台全自动，先跑通最小闭环：
+[Normal] 能手动添加一部剧并记录看到第几季第几集。
+[Normal] 能记录观看设备、观看时间、备注。
+[Normal] 能离线记录，联网后同步。
+[Normal] 能接入至少一个自动记录来源，例如 Jellyfin / Plex / Emby 导入或 webhook。
+[Normal] 自动记录能去重、能提示冲突、需要我确认。
+[Normal] 手机端和网页端能查看同一份进度数据。
+[Normal] 项目能通过 Docker 自托管，并能在 GitHub 开源。
+[Normal] 八、给 DeepSeek Harness 的启动指令
+[Normal] 请根据以上需求开始工作，但注意：
+[Normal] 先不要写代码。
+[Normal] 请先问我最多 5 个关键问题，然后输出 MVP 范围、同步方案对比、数据模型、自动记录来源优先级和开发步骤。等我确认后，再搭建项目骨架。
