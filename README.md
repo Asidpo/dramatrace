@@ -47,6 +47,10 @@ pnpm dev   # http://localhost:5173
 3. 浏览器打开 http://localhost:5173，用上面的管理员账号登录。
 
 后端自检：`pwsh infra\scripts\api_smoke.ps1`（11 项冒烟测试）。
+OCR 服务逻辑自检（stub 引擎，无需安装 PaddleOCR）：`python infra\scripts\ocr_service_test.py`（4 项）。
+Compose 文件校验：`python infra\scripts\check_compose.py infra\docker-compose.yml infra\docker-compose.ocr.yml`。
+
+CI：`.github/workflows/ci.yml` 在每次 push/PR 时自动跑前端构建、OCR 逻辑测试与后端冒烟测试。
 
 ## 生产部署（Docker Compose，一键）
 

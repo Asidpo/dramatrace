@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  web:
+    name: Web 前端（类型检查 + 构建）
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: apps/web/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run build
+
+  backend:
+    name: 后端（PocketBase 冒烟测试 + OCR 服务逻辑）
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install fastapi httpx python-multipart
+      - name: OCR 服务逻辑测试（stub 引擎）
+        run: python infra/scripts/ocr_service_test.py
+      - name: PocketBase 冒烟测试
+        run: |
+          set -e
+          PB_VERSION=0.40.6
+          curl -fL --retry 3 -o /tmp/pb.zip \
+            "https://github.com/pocketbase/pocketbase/releases/download/v${PB_VERSION}/pocketbase_${PB_VERSION}_linux_amd64.zip"
+          cd /tmp && unzip -o pb.zip
+          cd "$GITHUB_WORKSPACE/infra/pocketbase"
+          PB_ADMIN_EMAIL=admin@dramatrace.local PB_ADMIN_PASSWORD=changeme123 \
+            /tmp/pocketbase serve --http=127.0.0.1:8090 --dir=pb_data >/tmp/pb.log 2>&1 &
+          for i in $(seq 1 30); do
+            curl -sf http://127.0.0.1:8090/api/health >/dev/null && break
+            sleep 1
+          done
+          pwsh -File infra/scripts/api_smoke.ps1
